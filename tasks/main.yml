@@ -1,2 +1,6 @@
 ---
-# tasks file for mmartinello.icinga2-client
+- include_tasks: vars.yml
+
+- include_tasks: install.yml
+
+- include_tasks: client-configure.yml

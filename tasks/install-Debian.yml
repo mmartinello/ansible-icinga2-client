@@ -1,0 +1,46 @@
+---
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - virt-what
+      - rsync
+      - nmap
+      - bc
+      - gpg
+      - ca-certificates
+    state: present
+  tags: ['install-icinga2-stack', 'install-icinga2']
+
+- name: Add Debian Backports Repository
+  apt_repository:
+    repo: deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-backports main
+    state: present
+    filename: debian-backports
+  when: ansible_distribution_release | lower == "stretch"
+  tags: ['install-icinga2-stack', 'install-icinga2']
+
+- name: Add Icinga Repository Key
+  apt_key:
+    url: https://packages.icinga.com/icinga.key
+    state: present
+  tags: ['install-icinga2-stack', 'install-icinga2']
+
+- name: Add Icinga APT Repository
+  apt_repository:
+    repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
+    state: present
+    filename: icinga
+  tags: ['install-icinga2-stack', 'install-icinga2']
+
+- name: Install Icinga 2
+  package: name=icinga2 state=present
+  notify: Restart Icinga2
+  tags: ['install-icinga2-stack', 'install-icinga2']
+
+- name: Install Monitoring Plugins
+  apt:
+    name: "{{ debian_monitoring_plugins }}"
+    state: present
+    update_cache: yes
+  tags: ['install-icinga2-stack', 'install-icinga2', 'install-icinga2-plugins']
