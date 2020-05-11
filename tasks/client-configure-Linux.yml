@@ -37,7 +37,7 @@
   register: virt_what
 
 - set_fact:
-    icinga2_vm_type: "{{ virt_what.stdout }}"
+    vm_type: "{{ virt_what.stdout }}"
   when: virt_what.stdout != ""
 
 - set_fact:
