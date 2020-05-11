@@ -1,0 +1,11 @@
+---
+- include_tasks: purge-Debian.yml
+  when: ansible_os_family | lower in icinga2_apt_distros
+
+# TODO
+#- include_tasks: purge-Centos.yml
+#  when: ansible_os_family | lower in icinga2_yum_distros
+
+# TODO
+#- include_tasks: purge-Windows.yml
+#  when: ansible_os_family == "Windows"

@@ -1,0 +1,37 @@
+---
+- name: Ensure Icinga2 service is stopped
+  service:
+    name: icinga2
+    state: stopped
+    enabled: no
+
+- name: Remove Icinga Repository Key
+  apt_key:
+    url: https://packages.icinga.com/icinga.key
+    state: absent
+
+- name: Remove Icinga APT Repository
+  apt_repository:
+    repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
+    state: absent
+    filename: icinga
+
+- name: Remove Icinga2
+  apt:
+    name: icinga2*
+    state: absent
+
+- name: Remove Icinga2 files
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ icinga2_config_root_dir }}"
+    - "{{ icinga2_lib_dir }}"
+    - "{{ icinga2_log_dir }}"
+
+- name: Remove Monitoring Plugins
+  apt:
+    name: "{{ icinga2_debian_monitoring_plugins }}"
+    state: absent
+    update_cache: yes
