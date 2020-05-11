@@ -4,7 +4,7 @@ object Zone "{{ inventory_hostname }}" {
 }
 
 object Endpoint "{{ inventory_hostname }}" {
-  host = "{{ client_ip_address }}"
+  host = "{{ icinga2_client_ip_address }}"
 }
 
 object Host "{{ inventory_hostname }}" {
@@ -15,13 +15,13 @@ object Host "{{ inventory_hostname }}" {
 {% endif %}
   address = "{{ client_ip_address }}"
 
-  vars.os = "{{ client_os }}"
-  vars.distro = "{{ client_distro }}"
+  vars.os = "{{ icinga2_client_os }}"
+  vars.distro = "{{ icinga2_client_distro }}"
 {% if vm_type != "" %}
-  vars.vm_type = "{{ vm_type }}"
+  vars.vm_type = "{{ icinga2_vm_type }}"
 {% endif %}
 
-{% if client_os != "Windows" %}
+{% if icinga2_client_os != "Windows" %}
   vars.disks["disk"] = {
     disk_all = true
     disk_local = true

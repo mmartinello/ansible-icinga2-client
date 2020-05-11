@@ -1,15 +1,12 @@
 ---
 - include_tasks: install-Debian.yml
-  when: ansible_os_family | lower in apt_distros
-  tags: ['install-icinga2-stack', 'install-icinga2']
+  when: ansible_os_family | lower in icinga2_apt_distros
 
 - include_tasks: install-Centos.yml
-  when: ansible_os_family | lower in yum_distros
-  tags: ['install-icinga2-stack', 'install-icinga2']
+  when: ansible_os_family | lower in icinga2_yum_distros
 
 - include_tasks: install-Windows.yml
   when: ansible_os_family == "Windows"
-  tags: ['install-icinga2-stack', 'install-icinga2']
 
 - name: Ensure Icinga is started and enabled on boot.
   service:
@@ -17,7 +14,6 @@
     state: started
     enabled: "{{ icinga2_enable_on_boot }}"
   when: ansible_system == "Linux"
-  tags: ['install-icinga2-stack', 'install-icinga2']
 
 - name: Ensure Icinga is started and enabled on boot.
   win_service:
@@ -25,4 +21,3 @@
     state: started
     start_mode: auto
   when: ansible_os_family == "Windows"
-  tags: ['install-icinga2-stack', 'install-icinga2']

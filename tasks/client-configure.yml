@@ -39,10 +39,10 @@
 
 - name: Configure the client file on Icinga master server
   vars:
-    client_distro: "{{ icinga2_client_distro|default(ansible_distribution) }}"
+    icinga2_client_distro: "{{ icinga2_client_distro|default(ansible_distribution) }}"
   template:
     src: client-host.conf.j2
-    dest: "{{ config_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
+    dest: "{{ icinga2_config_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
     owner: root
     group: root
     mode: 0644
@@ -59,6 +59,6 @@
 
 - name: Create the client configuration state file
   win_file:
-    path: "{{ win_config_root_dir }}\\.icinga2_client_configured"
+    path: "{{ icinga2_win_config_root_dir }}\\.icinga2_client_configured"
     state: touch
   when: icinga2_client_configured == False and ansible_os_family == "Windows"
