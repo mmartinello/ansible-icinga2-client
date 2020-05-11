@@ -4,7 +4,7 @@ object Zone "{{ inventory_hostname }}" {
 }
 
 object Endpoint "{{ inventory_hostname }}" {
-  host = "{{ icinga2_client_ip_address }}"
+  host = "{{ client_ip_address }}"
 }
 
 object Host "{{ inventory_hostname }}" {
@@ -16,7 +16,7 @@ object Host "{{ inventory_hostname }}" {
   address = "{{ client_ip_address }}"
 
   vars.os = "{{ icinga2_client_os }}"
-  vars.distro = "{{ icinga2_client_distro }}"
+  vars.distro = "{{ client_distro }}"
 {% if vm_type != "" %}
   vars.vm_type = "{{ icinga2_vm_type }}"
 {% endif %}
