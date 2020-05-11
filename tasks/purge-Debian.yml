@@ -5,11 +5,6 @@
     state: stopped
     enabled: no
 
-- name: Remove Icinga Repository Key
-  apt_key:
-    url: https://packages.icinga.com/icinga.key
-    state: absent
-
 - name: Remove Icinga APT Repository
   apt_repository:
     repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
@@ -20,6 +15,8 @@
   apt:
     name: icinga2*
     state: absent
+    purge: yes
+    force: yes
 
 - name: Remove Icinga2 files
   file:
@@ -34,4 +31,5 @@
   apt:
     name: "{{ icinga2_debian_monitoring_plugins }}"
     state: absent
-    update_cache: yes
+    purge: yes
+    force: yes
