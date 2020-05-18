@@ -33,3 +33,8 @@
     state: absent
     purge: yes
     force: yes
+
+- name: Remove Icinga2 Client status file
+  file:
+    path: /root/.icinga2_client_configured
+    state: absent
