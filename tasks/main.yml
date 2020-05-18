@@ -1,8 +1,10 @@
 ---
 - include_tasks: vars.yml
 
-- include_tasks: purge.yml
-  when: icinga2_purge == true
+- import_tasks: purge.yml
+  tags:
+    - never
+    - purge
 
 - include_tasks: install.yml
 
