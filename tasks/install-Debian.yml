@@ -38,3 +38,9 @@
     name: "{{ icinga2_debian_monitoring_plugins }}"
     state: present
     update_cache: yes
+
+- name: Install Monitoring Libraries
+  apt:
+    name: "{{ icinga2_debian_monitoring_libraries }}"
+    state: present
+    update_cache: yes

@@ -62,6 +62,8 @@ icinga2_debian_monitoring_plugins:
   - nagios-plugins-basic
   - nagios-plugins-contrib
   - nagios-nrpe-plugin
+
+icinga2_debian_monitoring_libraries:
   - libmonitoring-plugin-perl
   - libjson-perl
   - libdbd-sybase-perl
@@ -69,6 +71,8 @@ icinga2_debian_monitoring_plugins:
 icinga2_centos_monitoring_plugins:
   - nagios-plugins-all
   - nagios-plugins-uptime
+
+icinga2_centos_monitoring_libraries:
   - perl-Monitoring-Plugin
   - perl-Nagios-Plugin
 

@@ -1,9 +1,15 @@
 ---
+- name: Check if Icinga2 service exist
+  shell: service icinga2 status 
+  register: icinga2_service_status
+  failed_when: not(icinga2_service_status.rc == 3 or icinga2_service_status.rc == 0)
+
 - name: Ensure Icinga2 service is stopped
   service:
     name: icinga2
     state: stopped
     enabled: no
+  when: icinga2_service_status.rc == 0
 
 - name: Remove Icinga APT Repository
   apt_repository:
