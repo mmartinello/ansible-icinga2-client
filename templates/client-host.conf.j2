@@ -17,8 +17,8 @@ object Host "{{ inventory_hostname }}" {
 
   vars.os = "{{ icinga2_client_os }}"
   vars.distro = "{{ client_distro }}"
-{% if vm_type != "" %}
-  vars.vm_type = "{{ vm_type }}"
+{% if icinga2_vm_type is defined and icinga2_vm_type != "" %}
+  vars.vm_type = "{{ icinga2_vm_type }}"
 {% endif %}
 
 {% if icinga2_client_os != "Windows" %}

@@ -6,7 +6,7 @@
 #  tags: ['configure-client']
 
 #- set_fact:
-#    vm_type: "{{ virt_what.stdout }}"
+#    icinga2_vm_type: "{{ virt_what.stdout }}"
 #  when: virt_what.stdout != ""
 #  tags: ['configure-client']
 
