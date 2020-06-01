@@ -38,7 +38,8 @@ icinga2_hosts_dir: 'hosts.d'
 icinga2_hosts_confs_dir: '' # FIXME: da verificare, vorrei fosse null
 icinga2_main_config_file: 'icinga2.conf'
 icinga2_constants_config_file: 'constants.conf'
-icinga2_confd_dir_included: true
+icinga2_confd_dir_included: false
+icinga2_services_dir_included: false
 
 icinga2_services_config_files:
   - { src: 'services.conf.j2', dest: 'services.conf' }

@@ -1,4 +1,22 @@
 ---
+- name: Ensure conf.d directory is recursively included
+  lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
+    line: "include_recursive \"{{ icinga2_confd_dir }}\""
+    state: present
+  notify: Reload Icinga2
+  when: icinga2_confd_dir_included
+
+- name: Ensure conf.d directory is not recursively included
+  lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
+    line: "#include_recursive \"{{ icinga2_confd_dir }}\""
+    state: present
+  notify: Reload Icinga2
+  when: not icinga2_confd_dir_included
+  
 - name: Ensure custom conf.d directory is present
   file:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_custom_confd_dir }}"
@@ -17,13 +35,24 @@
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_services_dir }}"
     state: directory
   notify: Reload Icinga2
-  
-- name: Ensure config files are recursively included from services dir
+
+- name: Ensure services.d directory is recursively included
   lineinfile:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
     line: "include_recursive \"{{ icinga2_services_dir }}\""
     state: present
   notify: Reload Icinga2
+  when: icinga2_services_dir_included
+
+- name: Ensure services.d directory is not recursively included
+  lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
+    line: "#include_recursive \"{{ icinga2_services_dir }}\""
+    state: present
+  notify: Reload Icinga2
+  when: not icinga2_services_dir_included
 
 - name: Remove default unnecessary config files
   file:
