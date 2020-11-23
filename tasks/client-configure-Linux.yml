@@ -5,6 +5,9 @@
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
     line: "include_recursive \"{{ icinga2_confd_dir }}\""
     state: present
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   notify: Reload Icinga2
   when: icinga2_confd_dir_included
 
@@ -14,6 +17,9 @@
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
     line: "#include_recursive \"{{ icinga2_confd_dir }}\""
     state: present
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   notify: Reload Icinga2
   when: not icinga2_confd_dir_included
   
@@ -21,6 +27,9 @@
   file:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_custom_confd_dir }}"
     state: directory
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0750
   notify: Reload Icinga2
 
 - name: Ensure config files are recursively included from conf.d dir
@@ -28,12 +37,18 @@
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
     line: "include_recursive \"{{ icinga2_custom_confd_dir }}\""
     state: present
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   notify: Reload Icinga2
 
 - name: Ensure services.d directory is present
   file:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_services_dir }}"
     state: directory
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0750
   notify: Reload Icinga2
 
 - name: Ensure services.d directory is recursively included
@@ -42,6 +57,9 @@
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
     line: "include_recursive \"{{ icinga2_services_dir }}\""
     state: present
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   notify: Reload Icinga2
   when: icinga2_services_dir_included
 
@@ -51,6 +69,9 @@
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
     line: "#include_recursive \"{{ icinga2_services_dir }}\""
     state: present
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   notify: Reload Icinga2
   when: not icinga2_services_dir_included
 
@@ -78,6 +99,10 @@
     path: "{{ icinga2_config_root_dir }}/constants.conf"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
+    state: present
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   with_items:
     - { regexp: '^(\/\/)?\s*const NodeName', line: 'const NodeName = "{{ inventory_hostname }}"' }
     - { regexp: '^(\/\/)?\s*const ZoneName', line: 'const ZoneName = "{{ inventory_hostname }}"' }
@@ -86,9 +111,9 @@
   template:
     src: ../templates/client-zones.conf.j2
     dest: "{{ icinga2_config_root_dir }}/zones.conf"
-    owner: root
-    group: root
-    mode: 0644
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
     
 - name: Copy CA and certs to client node
   copy:
@@ -106,9 +131,9 @@
   template:
     src: client-api.conf.j2
     dest: "{{ icinga2_config_root_dir }}/features-available/api.conf"
-    owner: root
-    group: root
-    mode: 0644
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
 
 - name: Enable Icinga API on satellite
   file:
@@ -125,12 +150,15 @@
   template:
     src: client-checker.conf.j2
     dest: "{{ icinga2_config_root_dir }}/features-available/checker.conf"
-    owner: root
-    group: root
-    mode: 0644
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
 
 - name: Create the client configuration state file
   file:
     path: /root/.icinga2_client_configured
     state: touch
+    owner: "{{ icinga2_user }}"
+    group: "{{ icinga2_group }}"
+    mode: 0640
   when: icinga2_client_configured == False
