@@ -1,0 +1,17 @@
+---
+# TODO: Remove Centos Icinga Repository
+#  - name: Remove Icinga APT Repository
+#  apt_repository:
+#    repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
+#    state: absent
+#    filename: icinga
+
+- name: Remove Icinga2
+  yum:
+    name: icinga2*
+    state: absent
+
+- name: Remove Monitoring Plugins
+  yum:
+    name: "{{ icinga2_centos_monitoring_plugins }}"
+    state: absent
