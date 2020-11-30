@@ -1,0 +1,6 @@
+TODO:
+
+- support for icinga2_client_vars empty list element, for example:
+
+  barman:
+    "Barman Backups":
