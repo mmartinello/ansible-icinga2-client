@@ -8,6 +8,11 @@
 - include_tasks: install-Windows.yml
   when: ansible_os_family == "Windows"
 
+- name: Disable Selinux
+  selinux:
+    state: disabled
+  when: ansible_system == "Linux" and icinga2_selinux_disable
+
 - name: Ensure Icinga is started and enabled on boot.
   service:
     name: icinga2
