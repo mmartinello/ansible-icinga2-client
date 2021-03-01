@@ -8,7 +8,6 @@
       - bc
     state: present
 
-- name: Enable Power Tools Repository on CentOS 8
   dnf:
     enablerepo: PowerTools
   when: ansible_distribution_major_version == "8"
@@ -20,6 +19,7 @@
       - epel-release
       #- "https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
     state: present
+    update_cache: yes
 
 # FIXME: due to the previous FIXME note let's install the Icinga2 release package with the 'command' module
 - name: Install Icinga2 EPEL Repository
@@ -29,9 +29,11 @@
   yum:
     name: icinga2
     state: present
+    update_cache: yes
   notify: Restart Icinga2
 
 - name: Install Monitoring Plugins
   yum:
     name: "{{ icinga2_centos_monitoring_plugins }}"
     state: present
+    update_cache: yes
