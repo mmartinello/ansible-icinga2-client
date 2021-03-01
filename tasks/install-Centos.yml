@@ -28,7 +28,9 @@
 
 - name: Install Icinga 2
   yum:
-    name: icinga2
+    name:
+      - icinga2
+      - icinga2-selinux
     state: present
     update_cache: yes
   notify: Restart Icinga2
