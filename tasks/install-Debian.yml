@@ -22,6 +22,7 @@
   apt_key:
     url: https://packages.icinga.com/icinga.key
     state: present
+    validate_certs: "{{ icinga2_validate_certs }}"
 
 - name: Add Icinga APT Repository
   apt_repository:

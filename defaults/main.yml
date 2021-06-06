@@ -15,6 +15,9 @@ icinga2_yum_distros:
   - redhat
   - red hat enterprise linux
 
+# Validate SSL certificates
+icinga2_validate_certs: true
+
 # Main service
 icinga2_enable_on_boot: true
 icinga2_api_accept_config: false
