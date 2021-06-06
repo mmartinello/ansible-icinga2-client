@@ -3,6 +3,8 @@
  */
 
 object Endpoint "{{ icinga2_master_host }}" {
+        host = "{{ icinga2_master_host }}"
+        port = {{ icinga2_api_port }}
 }
 
 object Zone "{{ icinga2_master_host }}" {
