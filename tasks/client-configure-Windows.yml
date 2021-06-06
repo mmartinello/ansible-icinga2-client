@@ -10,6 +10,41 @@
 #  when: virt_what.stdout != ""
 #  tags: ['configure-client']
 
+- name: Ensure conf.d directory is not recursively included
+  win_lineinfile:
+    path: "{{ icinga2_win_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
+    line: "#include_recursive \"{{ icinga2_confd_dir }}\""
+    state: present
+  notify: Restart Icinga2 on Windows
+  
+- name: Ensure custom conf.d directory is present
+  win_file:
+    path: "{{ icinga2_win_config_root_dir }}/{{ icinga2_custom_confd_dir }}"
+    state: directory
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure config files are recursively included from conf.d dir
+  win_lineinfile:
+    path: "{{ icinga2_win_config_root_dir }}/{{ icinga2_main_config_file }}"
+    line: "include_recursive \"{{ icinga2_custom_confd_dir }}\""
+    state: present
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure services.d directory is present
+  win_file:
+    path: "{{ icinga2_win_config_root_dir }}/{{ icinga2_services_dir }}"
+    state: directory
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure services.d directory is recursively included
+  win_lineinfile:
+    path: "{{ icinga2_win_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
+    line: "include_recursive \"{{ icinga2_services_dir }}\""
+    state: present
+  notify: Restart Icinga2 on Windows
+
 - name: Setup Icinga constants
   win_lineinfile:
     path: "{{ icinga2_win_config_root_dir }}/{{ icinga2_constants_config_file }}"
