@@ -10,8 +10,8 @@
 
 - name: Enable PowerTools Repository on CentOS 8
   shell:
-    cmd: dnf config-manager --set-enabled powertools
-  when: ansible_distribution_major_version >= "8"
+    cmd: dnf config-manager --set-enabled PowerTools
+  when: ansible_distribution_major_version == "8"
 
 # FIXME: installing Icinga2 release package with the 'yum' module gives "Failed to validate GPG signature for ..." error
 - name: Activate EPEL and Icinga2 Repositories
