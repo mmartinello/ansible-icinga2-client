@@ -82,6 +82,7 @@ icinga2_centos_monitoring_libraries:
   - perl-Monitoring-Plugin
   - perl-Nagios-Plugin
 
+icinga2_powertools_repo_name: powertools
 
 #########################################################################
 # Windows
