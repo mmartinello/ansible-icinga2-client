@@ -4,3 +4,7 @@ TODO:
 
   barman:
     "Barman Backups":
+
+- Per ogni host che si aggiunge, creare un file importato
+  'hostname-custom.conf' non gestito da Ansible (controllare solo che
+  esista)
