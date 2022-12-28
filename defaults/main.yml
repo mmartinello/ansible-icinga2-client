@@ -57,6 +57,7 @@ icinga2_client_configured: false
 icinga2_client_reinstall: false
 icinga2_host_template: 'generic-host'
 icinga2_client_vars: {}
+icinga2_client_vars_extra: {}
 icinga2_selinux_disable: false
 icinga2_purge_deconfigure_on_master: true
 
