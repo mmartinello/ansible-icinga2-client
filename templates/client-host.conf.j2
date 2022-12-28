@@ -15,8 +15,22 @@ object Host "{{ inventory_hostname }}" {
 {% endif %}
   address = "{{ client_ip_address }}"
 
-  vars.os = "{{ icinga2_client_os }}"
-  vars.distro = "{{ client_distro }}"
+  vars.distribution = "{{ ansible_distribution }}"
+  vars.distribution_file_variety = "{{ ansible_distribution_file_variety }}"
+  vars.distribution_major_version = "{{ ansible_distribution_major_version }}"
+  vars.distribution_release = "{{ ansible_distribution_release }}"
+  vars.distribution_version = "{{ ansible_distribution_version }}"
+  vars.domain = "{{ ansible_domain }}"
+  vars.fqdn = "{{ ansible_fqdn }}"
+  vars.hostname = "{{ ansible_hostname }}"
+  vars.processor_cores = "{{ ansible_processor_cores }}"
+  vars.processor_count = "{{ ansible_processor_count }}"
+  vars.processor_nproc = "{{ ansible_processor_nproc }}"
+  vars.product_name = "{{ ansible_product_name | default('') }}
+  vars.system_vendor = "{{ ansible_system_vendor | default('') }}"
+  vars.virtualization_role = "{{ ansible_virtualization_role | default('') }}"
+  vars.virtualization_type = "{{ ansible_virtualization_type | default('') }}"
+
 {% if icinga2_vm_type is defined and icinga2_vm_type != "" %}
   vars.vm_type = "{{ icinga2_vm_type }}"
 {% endif %}
@@ -35,8 +49,8 @@ object Host "{{ inventory_hostname }}" {
   vars.client_endpoint = name
 
   # Host Variables
-{% set _dummy = icinga2_client_vars.update(icinga2_client_vars_extra) %}
 {% set host_vars = icinga2_client_vars | default({}) %}
+{% set _extra_vars = host_vars.update(icinga2_client_vars_extra) %}
 {% for var_group_name, var_group_content in host_vars.items() %}
 {% if var_group_content is mapping %}
 {% for var_name, variables in var_group_content.items() %}
