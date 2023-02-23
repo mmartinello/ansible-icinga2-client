@@ -32,6 +32,10 @@ object Host "{{ inventory_hostname }}" {
   vars.virtualization_role = "{{ ansible_virtualization_role | default('') }}"
   vars.virtualization_type = "{{ ansible_virtualization_type | default('') }}"
 
+{% if icinga2_plugins_linuxfabrik_monitoring_plugins_installed | default(false) %}
+  vars.linuxfabrik_monitoring_plugins_installed = true
+{% endif %}
+
 {% if icinga2_vm_type is defined and icinga2_vm_type != "" %}
   vars.vm_type = "{{ icinga2_vm_type }}"
 {% endif %}
@@ -48,6 +52,9 @@ object Host "{{ inventory_hostname }}" {
   }
 
   vars.client_endpoint = name
+
+{% if icinga2_plugins_linuxfabrik_monitoring_plugins_installed | default(false) %}
+{% endif %}
 
   # Host Variables
 {% set host_vars = icinga2_client_vars | default({}) %}
