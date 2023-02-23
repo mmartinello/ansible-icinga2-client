@@ -166,7 +166,7 @@
 # Check if Linuxfabrik Monitoring Plugins are installed
 - name: Check if Linuxfabrik Monitoring Plugins are installed
   stat:
-    path: "{{ linuxfabrik_monitoring_plugins_dest_path }}/linuxfabrik-monitoring-plugins.installed"
+    path: "{{ icinga2_config_root_dir }}/.linuxfabrik-monitoring-plugins.installed"
   register: linuxfabrik_monitoring_plugins_installed_status_file
 
 - set_fact:
