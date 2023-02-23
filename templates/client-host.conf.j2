@@ -23,10 +23,11 @@ object Host "{{ inventory_hostname }}" {
   vars.domain = "{{ ansible_domain }}"
   vars.fqdn = "{{ ansible_fqdn }}"
   vars.hostname = "{{ ansible_hostname }}"
+  vars.memtotal_mb = "{{ ansible_memtotal_mb }}"
   vars.processor_cores = "{{ ansible_processor_cores }}"
   vars.processor_count = "{{ ansible_processor_count }}"
   vars.processor_nproc = "{{ ansible_processor_nproc }}"
-  vars.product_name = "{{ ansible_product_name | default('') }}
+  vars.product_name = "{{ ansible_product_name | default('') }}"
   vars.system_vendor = "{{ ansible_system_vendor | default('') }}"
   vars.virtualization_role = "{{ ansible_virtualization_role | default('') }}"
   vars.virtualization_type = "{{ ansible_virtualization_type | default('') }}"
