@@ -31,6 +31,8 @@ icinga2_log_dir: /var/log/icinga2
 icinga2_cert_path: /var/lib/icinga2/certs/{{ inventory_hostname }}.crt
 icinga2_key_path: /var/lib/icinga2/certs/{{ inventory_hostname }}.key
 icinga2_ca_path: /var/lib/icinga2/certs/ca.crt
+icinga2_master_user: nagios
+icinga2_master_group: nagios
 
 # Configuration
 icinga2_config_root_dir: '/etc/icinga2'
