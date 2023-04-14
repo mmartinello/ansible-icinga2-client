@@ -1,11 +1,28 @@
 ---
-- include_tasks: vars.yml
+- name: Gather OS system specific variables
+  ansible.builtin.include_vars: "{{ ansible_system }}.yml"
 
-- import_tasks: purge.yml
+- name: Gather Distribution specific variables
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_system }}-{{ ansible_os_family }}-{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
+        - "{{ ansible_system }}-{{ ansible_os_family }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_system }}-{{ ansible_os_family }}-{{ ansible_distribution }}.yml"
+        - "{{ ansible_system }}-{{ ansible_os_family }}.yml"
+        - "default.yml"
+      paths:
+        - vars
+
+- name: Purge installation if requested
+  ansible.builtin.import_tasks: purge.yml
   tags:
     - never
     - purge
 
-- include_tasks: install.yml
+- name: Install Icinga
+  ansible.builtin.include_tasks: install.yml
 
-- include_tasks: client-configure.yml
+- name: Configure Icinga as client
+  ansible.builtin.include_tasks: client-configure.yml

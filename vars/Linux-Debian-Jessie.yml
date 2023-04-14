@@ -1,0 +1,2 @@
+---
+debian_monitoring_plugins: "{{ (icinga2_debian_monitoring_plugins | difference(['libmonitoring-plugin-perl'])) + ['libnagios-plugin-perl'] }}"
