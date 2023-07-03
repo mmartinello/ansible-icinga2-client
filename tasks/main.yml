@@ -15,14 +15,14 @@
       paths:
         - vars
 
-- name: Purge installation if requested
-  ansible.builtin.import_tasks: purge.yml
-  tags:
-    - never
-    - purge
-
 - name: Install Icinga
   ansible.builtin.include_tasks: install.yml
 
 - name: Configure Icinga as client
   ansible.builtin.include_tasks: client-configure.yml
+
+- name: Purge installation if requested
+  ansible.builtin.import_tasks: purge.yml
+  tags:
+    - never
+    - purge

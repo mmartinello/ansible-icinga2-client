@@ -1,31 +1,31 @@
 ---
 - name: Check if Icinga2 service exist
-  shell: service icinga2 status 
+  ansible.builtin.shell: service icinga2 status 
   register: icinga2_service_status
   failed_when: not(icinga2_service_status.rc == 3 or icinga2_service_status.rc == 0)
 
 - name: Ensure Icinga2 service is stopped
-  service:
+  ansible.builtin.service:
     name: icinga2
     state: stopped
-    enabled: no
+    enabled: false
   when: icinga2_service_status.rc == 0
 
 - name: Remove Icinga APT Repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
     state: absent
     filename: icinga
 
 - name: Remove Icinga2
-  apt:
+  ansible.builtin.apt:
     name: icinga2*
     state: absent
-    purge: yes
-    force: yes
+    purge: true
+    force: true
 
 - name: Remove Icinga2 files
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   loop:
@@ -34,13 +34,16 @@
     - "{{ icinga2_log_dir }}"
 
 - name: Remove Monitoring Plugins
-  apt:
+  ansible.builtin.apt:
     name: "{{ icinga2_debian_monitoring_plugins }}"
     state: absent
-    purge: yes
-    force: yes
+    purge: true
+    force: true
 
 - name: Remove Icinga2 Client status file
-  file:
+  ansible.builtin.file:
     path: /root/.icinga2_client_configured
     state: absent
+    owner: root
+    group: root
+    mode: '0600'

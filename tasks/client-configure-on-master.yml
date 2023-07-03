@@ -2,39 +2,39 @@
 # Client configuration on master host
 
 - name: Generate a new key and CSR for new satellite on icinga server
-  shell: cd /tmp && icinga2 pki new-cert --cn {{ inventory_hostname }} --key /tmp/{{ inventory_hostname }}.key --csr /tmp/{{ inventory_hostname }}.csr
+  ansible.builtin.shell: cd /tmp && icinga2 pki new-cert --cn {{ inventory_hostname }} --key /tmp/{{ inventory_hostname }}.key --csr /tmp/{{ inventory_hostname }}.csr
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
 
 - name: Sign the certificate with the master CA certificate on the master node
-  shell: icinga2 pki sign-csr --csr /tmp/{{ inventory_hostname }}.csr --cert /tmp/{{ inventory_hostname }}.crt
+  ansible.builtin.shell: icinga2 pki sign-csr --csr /tmp/{{ inventory_hostname }}.csr --cert /tmp/{{ inventory_hostname }}.crt
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
 
 - name: Download the CA certificate from Icinga master node
-  fetch:
+  ansible.builtin.fetch:
     src: /var/lib/icinga2/ca/ca.crt
     dest: "/tmp/ansible/{{ inventory_hostname }}/icinga/ca.crt"
-    flat: yes
+    flat: true
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
 
 - name: Get files to be downloaded
-  shell: "ls /tmp/{{ inventory_hostname }}.*"
+  ansible.builtin.shell: "ls /tmp/{{ inventory_hostname }}.*"
   register: files_to_be_downloaded
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
 
 - name: Download certificates from Icinga master node
-  fetch:
+  ansible.builtin.fetch:
     src: "{{item}}"
-    dest: "/tmp/ansible/{{ inventory_hostname }}/icinga/"   
-    flat: yes
+    dest: "/tmp/ansible/{{ inventory_hostname }}/icinga/"
+    flat: true
   with_items: "{{ files_to_be_downloaded.stdout_lines }}" 
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
 
 - name: Delete temporary files from Icinga master node
-  shell: "rm /tmp/{{ inventory_hostname }}.*"
+  ansible.builtin.shell: "rm /tmp/{{ inventory_hostname }}.*"
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true

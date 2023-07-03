@@ -1,64 +1,77 @@
 ---
 # Check client state file
+- name: Include check state file tasks
+  include_tasks: "client-check-{{ ansible_system }}.yml"
 
-- include_tasks: client-check-Linux.yml
-  when: ansible_system == "Linux"
-
-- include_tasks: client-check-Windows.yml
-  when: ansible_os_family == "Windows"
-
-- set_fact:
+- name: Set configured state variable
+  set_fact:
     icinga2_client_configured: true
-  when: icinga2_client_file.stat.exists == True and icinga2_client_reinstall == False
+  when:
+    - icinga2_client_file.stat.exists
+    - not icinga2_client_reinstall
 
 
 # Client registration on master if not registered
-
-- include_tasks: client-configure-on-master.yml
-  when: icinga2_client_configured == False
-
+- name: Include client configuration on master tasks
+  include_tasks: client-configure-on-master.yml
+  when: not icinga2_client_configured
 
 # Configure client on Linux and Windows
-
-- include_tasks: client-configure-Linux.yml
-  when: ansible_system == "Linux"
-
-- include_tasks: client-configure-Windows.yml
-  when: ansible_os_family == "Windows"
-
+- name: Include client configuration tasks
+  ansible.builtin.include_tasks: "client-configure-{{ ansible_system }}.yml"
 
 # Delete temp files, configure client on master and set client state file
-
 - name: Delete temporary files from Ansible host
-  local_action:
-    module: file
+  ansible.builtin.file:
     path: "/tmp/ansible/{{ inventory_hostname }}"
     state: absent
+  delegate_to: localhost
   become: false
-  when: icinga2_client_configured == False
+  when: not icinga2_client_configured
 
-- name: Configure the client file on Icinga master server
-  vars:
-    client_distro: "{{ icinga2_client_distro|default(ansible_distribution) }}"
-  template:
-    src: client-host.conf.j2
-    dest: "{{ icinga2_config_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
-    owner: root
-    group: root
-    mode: 0644
+- name: Create the additional host var dir on master server
+  ansible.builtin.file:
+    path: "{{ icinga2_config_root_dir }}/additional-host-vars"
+    state: directory
+    owner: "{{ icinga2_master_user }}"
+    group: "{{ icinga2_master_group }}"
+    mode: '0750'
+  delegate_to: "{{ icinga2_master_inventory_hostname }}"
+  become: true
+
+- name: Create the additional host var file if not exists
+  ansible.builtin.file:
+    path: "{{ icinga2_config_root_dir }}/additional-host-vars/{{ inventory_hostname }}.conf"
+    state: touch
+    owner: "{{ icinga2_master_user }}"
+    group: "{{ icinga2_master_group }}"
+    mode: '0640'
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
   notify: Reload Icinga2 on master server
 
+- name: Configure the client file on Icinga master server
+  ansible.builtin.template:
+    src: client-host.conf.j2
+    dest: "{{ icinga2_config_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  delegate_to: "{{ icinga2_master_inventory_hostname }}"
+  vars:
+    client_distro: "{{ icinga2_client_distro | default(ansible_distribution) }}"
+  become: true
+  notify: Reload Icinga2 on master server
+
 - name: Create the client configuration state file
-  file:
+  ansible.builtin.file:
     path: /root/.icinga2_client_configured
     state: touch
-  when: icinga2_client_configured == False and ansible_system == "Linux"
+  when: not icinga2_client_configured and ansible_system == "Linux"
   notify: Reload Icinga2
 
 - name: Create the client configuration state file
-  win_file:
+  ansible.builtin.win_file:
     path: "{{ icinga2_win_config_root_dir }}\\.icinga2_client_configured"
     state: touch
-  when: icinga2_client_configured == False and ansible_os_family == "Windows"
+  when: not icinga2_client_configured and ansible_os_family == "Windows"

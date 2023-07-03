@@ -1,6 +1,6 @@
 ---
 - name: Install required packages
-  yum:
+  ansible.builtin.yum:
     name:
       - virt-what
       - rsync
@@ -9,34 +9,34 @@
     state: present
 
 - name: Enable PowerTools Repository on CentOS 8
-  shell:
+  ansible.builtin.shell:
     cmd: "dnf config-manager --set-enabled {{ icinga2_powertools_repo_name }}"
   when: ansible_distribution_major_version == "8"
 
 # FIXME: installing Icinga2 release package with the 'yum' module gives "Failed to validate GPG signature for ..." error
 - name: Activate EPEL and Icinga2 Repositories
-  yum:
+  ansible.builtin.yum:
     name:
       - epel-release
-      #- "https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
+      # - "https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
     state: present
-    update_cache: yes
+    update_cache: true
 
 # FIXME: due to the previous FIXME note let's install the Icinga2 release package with the 'command' module
 - name: Install Icinga2 EPEL Repository
-  command: "yum -y install https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
+  ansible.builtin.command: "yum -y install https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
 
 - name: Install Icinga 2
-  yum:
+  ansible.builtin.yum:
     name:
       - icinga2
       - icinga2-selinux
     state: present
-    update_cache: yes
+    update_cache: true
   notify: Restart Icinga2
 
 - name: Install Monitoring Plugins
-  yum:
+  ansible.builtin.yum:
     name: "{{ icinga2_centos_monitoring_plugins }}"
     state: present
-    update_cache: yes
+    update_cache: true

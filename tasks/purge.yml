@@ -1,13 +1,14 @@
 ---
-- include_tasks: purge-Linux.yml
+- name: Uninstall Icinga2 on Linux systems
+  ansible.builtin.include_tasks: purge-Linux.yml
   when: ansible_system == "Linux"
 
 # TODO: Purge on Windows system
-#- include_tasks: purge-Windows.yml
+# - include_tasks: purge-Windows.yml
 #  when: ansible_os_family == "Windows"
 
 - name: Deconfigure client on master server
-  file:
+  ansible.builtin.file:
     path: "{{ icinga2_config_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
     state: absent
   delegate_to: "{{ icinga2_master_inventory_hostname }}"

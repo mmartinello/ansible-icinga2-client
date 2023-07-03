@@ -7,11 +7,11 @@
 #    filename: icinga
 
 - name: Remove Icinga2
-  yum:
+  ansible.builtin.yum:
     name: icinga2*
     state: absent
 
 - name: Remove Monitoring Plugins
-  yum:
+  ansible.builtin.yum:
     name: "{{ icinga2_centos_monitoring_plugins }}"
     state: absent

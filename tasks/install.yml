@@ -1,27 +1,30 @@
 ---
-- include_tasks: install-Debian.yml
+- name: Install Icinga2 on Debian like systems
+  ansible.builtin.include_tasks: install-Debian.yml
   when: ansible_os_family | lower in icinga2_apt_distros
 
-- include_tasks: install-Centos.yml
+- name: Install Icinga2 on CentOS like systems
+  ansible.builtin.include_tasks: install-Centos.yml
   when: ansible_os_family | lower in icinga2_yum_distros
 
-- include_tasks: install-Windows.yml
+- name: Install Icinga2 on Windows
+  ansible.builtin.include_tasks: install-Windows.yml
   when: ansible_os_family == "Windows"
 
 - name: Disable Selinux
-  selinux:
+  ansible.posix.selinux:
     state: disabled
   when: ansible_system == "Linux" and icinga2_selinux_disable
 
 - name: Ensure Icinga is started and enabled on boot.
-  service:
+  ansible.builtin.service:
     name: icinga2
     state: started
     enabled: "{{ icinga2_enable_on_boot }}"
   when: ansible_system == "Linux"
 
 - name: Ensure Icinga is started and enabled on boot.
-  win_service:
+  ansible.builtin.win_service:
     name: icinga2
     state: started
     start_mode: auto

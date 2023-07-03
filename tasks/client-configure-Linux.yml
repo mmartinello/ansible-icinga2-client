@@ -162,13 +162,3 @@
     group: "{{ icinga2_group }}"
     mode: 0640
   when: icinga2_client_configured == False
-
-# Check if Linuxfabrik Monitoring Plugins are installed
-- name: Check if Linuxfabrik Monitoring Plugins are installed
-  stat:
-    path: "{{ icinga2_config_root_dir }}/.linuxfabrik-monitoring-plugins.installed"
-  register: linuxfabrik_monitoring_plugins_installed_status_file
-
-- set_fact:
-    icinga2_plugins_linuxfabrik_monitoring_plugins_installed: true
-  when: linuxfabrik_monitoring_plugins_installed_status_file.stat.exists
