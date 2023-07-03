@@ -1,6 +1,6 @@
 ---
 - name: Ensure conf.d directory is recursively included
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
     line: "include_recursive \"{{ icinga2_confd_dir }}\""
@@ -12,153 +12,146 @@
   when: icinga2_confd_dir_included
 
 - name: Ensure conf.d directory is not recursively included
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
     line: "#include_recursive \"{{ icinga2_confd_dir }}\""
     state: present
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
   notify: Reload Icinga2
   when: not icinga2_confd_dir_included
-  
+
 - name: Ensure custom conf.d directory is present
-  file:
+  ansible.builtin.file:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_custom_confd_dir }}"
     state: directory
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0750
+    mode: '0750'
   notify: Reload Icinga2
 
 - name: Ensure config files are recursively included from conf.d dir
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
     line: "include_recursive \"{{ icinga2_custom_confd_dir }}\""
     state: present
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
   notify: Reload Icinga2
 
 - name: Ensure services.d directory is present
-  file:
+  ansible.builtin.file:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_services_dir }}"
     state: directory
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0750
+    mode: '0750'
   notify: Reload Icinga2
 
 - name: Ensure services.d directory is recursively included
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
     line: "include_recursive \"{{ icinga2_services_dir }}\""
     state: present
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
   notify: Reload Icinga2
   when: icinga2_services_dir_included
 
 - name: Ensure services.d directory is not recursively included
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
     regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
     line: "#include_recursive \"{{ icinga2_services_dir }}\""
     state: present
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
   notify: Reload Icinga2
   when: not icinga2_services_dir_included
 
 - name: Remove default unnecessary config files
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: absent
   with_items: "{{ icinga2_default_unnecessary_config_files }}"
   notify: Reload Icinga2
 
-- name: Get Virtual Machine type
-  command: /usr/sbin/virt-what
-  register: virt_what
-
-- set_fact:
-    icinga2_vm_type: "{{ virt_what.stdout }}"
-  when: virt_what.stdout != ""
-
-- set_fact:
+- name: Set Icinga2 client configured status file
+- ansible.builtin.set_fact:
     icinga2_client_configured: true
   when: icinga2_client_file.stat.exists == True and icinga2_client_reinstall == False
-  
+
 - name: Setup Icinga constants
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "{{ icinga2_config_root_dir }}/constants.conf"
     regexp: "{{ item.regexp }}"
     line: "{{ item.line }}"
     state: present
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
   with_items:
     - { regexp: '^(\/\/)?\s*const NodeName', line: 'const NodeName = "{{ inventory_hostname }}"' }
     - { regexp: '^(\/\/)?\s*const ZoneName', line: 'const ZoneName = "{{ inventory_hostname }}"' }
 
 - name: Setup Icinga zones
-  template:
+  ansible.builtin.template:
     src: ../templates/client-zones.conf.j2
     dest: "{{ icinga2_config_root_dir }}/zones.conf"
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
-    
+    mode: '0640'
+
 - name: Copy CA and certs to client node
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: /var/lib/icinga2/certs/
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0600
-    directory_mode: 0700
+    mode: '0600'
+    directory_mode: '0700'
   with_fileglob:
     - "/tmp/ansible/{{ inventory_hostname }}/icinga/*"
-  when: icinga2_client_configured == False
-      
+  when: not icinga2_client_configured
+
 - name: Configure Icinga API on satellite
-  template:
+  ansible.builtin.template:
     src: client-api.conf.j2
     dest: "{{ icinga2_config_root_dir }}/features-available/api.conf"
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Enable Icinga API on satellite
-  file:
+  ansible.builtin.file:
     src: "{{ icinga2_config_root_dir }}/features-available/api.conf"
     dest: "{{ icinga2_config_root_dir }}/features-enabled/api.conf"
     state: link
 
 - name: Disable Icinga notifier on satellite
-  file:
+  ansible.builtin.file:
     path: "{{ icinga2_config_root_dir }}/features-enabled/notification.conf"
     state: absent
 
 - name: Configure Icinga checker on satellite
-  template:
+  ansible.builtin.template:
     src: client-checker.conf.j2
     dest: "{{ icinga2_config_root_dir }}/features-available/checker.conf"
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
 
 - name: Create the client configuration state file
-  file:
+  ansible.builtin.file:
     path: /root/.icinga2_client_configured
     state: touch
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
-  when: icinga2_client_configured == False
+    mode: '0640'
+  when: not icinga2_client_configured

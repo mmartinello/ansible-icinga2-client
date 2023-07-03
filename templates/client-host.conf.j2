@@ -39,10 +39,6 @@ object Host "{{ inventory_hostname }}" {
   vars.linuxfabrik_monitoring_plugins_installed = true
 {% endif %}
 
-{% if icinga2_vm_type is defined and icinga2_vm_type != "" %}
-  vars.vm_type = "{{ icinga2_vm_type }}"
-{% endif %}
-
 {% if icinga2_client_os != "Windows" %}
   vars.disks["disk"] = {
     disk_all = true
