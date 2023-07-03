@@ -3,7 +3,6 @@
   ansible.builtin.apt:
     name:
       - apt-transport-https
-      - virt-what
       - rsync
       - nmap
       - bc
