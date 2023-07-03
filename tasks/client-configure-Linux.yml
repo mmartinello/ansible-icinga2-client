@@ -7,7 +7,7 @@
     state: present
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
-    mode: 0640
+    mode: '0640'
   notify: Reload Icinga2
   when: icinga2_confd_dir_included
 
@@ -83,9 +83,9 @@
   notify: Reload Icinga2
 
 - name: Set Icinga2 client configured status file
-- ansible.builtin.set_fact:
+  ansible.builtin.set_fact:
     icinga2_client_configured: true
-  when: icinga2_client_file.stat.exists == True and icinga2_client_reinstall == False
+  when: icinga2_client_file.stat.exists and not icinga2_client_reinstall
 
 - name: Setup Icinga constants
   ansible.builtin.lineinfile:
@@ -102,7 +102,7 @@
 
 - name: Setup Icinga zones
   ansible.builtin.template:
-    src: ../templates/client-zones.conf.j2
+    src: templates/client-zones.conf.j2
     dest: "{{ icinga2_config_root_dir }}/zones.conf"
     owner: "{{ icinga2_user }}"
     group: "{{ icinga2_group }}"
