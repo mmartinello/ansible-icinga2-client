@@ -1,0 +1,26 @@
+---
+- name: Ensure Icinga is started and enabled on boot.
+  ansible.windows.win_service:
+    name: icinga2
+    state: stopped
+    start_mode: disabled
+
+- name: Uninstall Icinga2
+  ansible.windows.win_package:
+    path: "{{ package_url }}"
+    product_id: "{{ icinga2_win_package_product_id }} "
+    state: absent
+
+- name: Remove Icinga2 files
+  ansible.windows.win_file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ icinga2_config_root_dir }}"
+    - "{{ icinga2_lib_dir }}"
+    - "{{ icinga2_log_dir }}"
+
+- name: Remove Icinga2 Client status file
+  ansible.windows.win_file:
+    path: "{{ icinga2_win_config_root_dir }}\\.icinga2_client_configured"
+    state: absent

@@ -24,7 +24,7 @@
   when: ansible_system == "Linux"
 
 - name: Ensure Icinga is started and enabled on boot.
-  ansible.builtin.win_service:
+  ansible.windows.win_service:
     name: icinga2
     state: started
     start_mode: auto

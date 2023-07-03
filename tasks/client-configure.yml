@@ -1,19 +1,18 @@
 ---
 # Check client state file
 - name: Include check state file tasks
-  include_tasks: "client-check-{{ ansible_system }}.yml"
+  ansible.builtin.include_tasks: "client-check-{{ ansible_system }}.yml"
 
 - name: Set configured state variable
-  set_fact:
+  ansible.builtin.set_fact:
     icinga2_client_configured: true
   when:
     - icinga2_client_file.stat.exists
     - not icinga2_client_reinstall
 
-
 # Client registration on master if not registered
 - name: Include client configuration on master tasks
-  include_tasks: client-configure-on-master.yml
+  ansible.builtin.include_tasks: client-configure-on-master.yml
   when: not icinga2_client_configured
 
 # Configure client on Linux and Windows
@@ -64,14 +63,14 @@
   notify: Reload Icinga2 on master server
 
 - name: Create the client configuration state file
-  ansible.builtin.file:
+  ansible.windows.file:
     path: /root/.icinga2_client_configured
     state: touch
   when: not icinga2_client_configured and ansible_system == "Linux"
   notify: Reload Icinga2
 
 - name: Create the client configuration state file
-  ansible.builtin.win_file:
+  ansible.windows.win_file:
     path: "{{ icinga2_win_config_root_dir }}\\.icinga2_client_configured"
     state: touch
   when: not icinga2_client_configured and ansible_os_family == "Windows"
