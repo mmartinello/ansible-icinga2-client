@@ -22,5 +22,5 @@
 
 - name: Remove Icinga2 Client status file
   ansible.windows.win_file:
-    path: "{{ icinga2_win_config_root_dir }}\\.icinga2_client_configured"
+    path: "{{ icinga2_config_root_dir }}\\.icinga2_client_configured"
     state: absent

@@ -71,6 +71,6 @@
 
 - name: Create the client configuration state file
   ansible.windows.win_file:
-    path: "{{ icinga2_win_config_root_dir }}\\.icinga2_client_configured"
+    path: "{{ icinga2_config_root_dir }}\\.icinga2_client_configured"
     state: touch
   when: not icinga2_client_configured and ansible_os_family == "Windows"

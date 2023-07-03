@@ -1,3 +1,6 @@
 ---
+icinga2_config_root_dir: 'C:\ProgramData\icinga2\etc\icinga2'
+icinga2_client_certs_dir: 'C:\ProgramData\icinga2\var\lib\icinga2\certs'
+
 client_ip_address: "{{ icinga2_client_ip_address | default(ansible_ip_addresses[0]) }}"
 icinga2_client_os: "{{ ansible_os_family }}"
