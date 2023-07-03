@@ -30,7 +30,7 @@
 
 - name: Create the additional host var dir on master server
   ansible.builtin.file:
-    path: "{{ icinga2_config_root_dir }}/additional-host-vars"
+    path: "{{ icinga2_client_master_conf_root_dir }}/additional-host-vars"
     state: directory
     owner: "{{ icinga2_master_user }}"
     group: "{{ icinga2_master_group }}"
@@ -40,7 +40,7 @@
 
 - name: Create the additional host var file if not exists
   ansible.builtin.file:
-    path: "{{ icinga2_config_root_dir }}/additional-host-vars/{{ inventory_hostname }}.conf"
+    path: "{{ icinga2_client_master_conf_root_dir }}/additional-host-vars/{{ inventory_hostname }}.conf"
     state: touch
     owner: "{{ icinga2_master_user }}"
     group: "{{ icinga2_master_group }}"
@@ -52,7 +52,7 @@
 - name: Configure the client file on Icinga master server
   ansible.builtin.template:
     src: client-host.conf.j2
-    dest: "{{ icinga2_config_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
+    dest: "{{ icinga2_client_master_conf_root_dir }}/zones.d/{{ icinga2_master_host }}/{{ inventory_hostname }}.conf"
     owner: root
     group: root
     mode: '0644'
@@ -63,9 +63,12 @@
   notify: Reload Icinga2 on master server
 
 - name: Create the client configuration state file
-  ansible.windows.file:
+  ansible.builtin.file:
     path: /root/.icinga2_client_configured
     state: touch
+    owner: root
+    group: root
+    mode: '0600'
   when: not icinga2_client_configured and ansible_system == "Linux"
   notify: Reload Icinga2
 

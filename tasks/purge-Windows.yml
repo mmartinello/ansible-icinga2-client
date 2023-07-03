@@ -11,14 +11,12 @@
     product_id: "{{ icinga2_win_package_product_id }} "
     state: absent
 
-- name: Remove Icinga2 files
+- name: Remove Icinga2 directories
   ansible.windows.win_file:
-    path: "{{ item }}"
+    path:
+      - C:\ProgramData\icinga2
+      - C:\Program Files\ICINGA2
     state: absent
-  loop:
-    - "{{ icinga2_config_root_dir }}"
-    - "{{ icinga2_lib_dir }}"
-    - "{{ icinga2_log_dir }}"
 
 - name: Remove Icinga2 Client status file
   ansible.windows.win_file:

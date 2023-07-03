@@ -33,16 +33,17 @@ icinga2_key_path: /var/lib/icinga2/certs/{{ inventory_hostname }}.key
 icinga2_ca_path: /var/lib/icinga2/certs/ca.crt
 icinga2_master_user: nagios
 icinga2_master_group: nagios
+icinga2_client_master_conf_root_dir: /etc/icinga2
 
 # Configuration
-icinga2_config_root_dir: '/etc/icinga2'
-icinga2_confd_dir: 'conf.d'
-icinga2_custom_confd_dir: 'custom-conf.d'
-icinga2_services_dir: 'services.d'
-icinga2_hosts_dir: 'hosts.d'
+icinga2_config_root_dir: /etc/icinga2
+icinga2_confd_dir: conf.d
+icinga2_custom_confd_dir: custom-conf.d
+icinga2_services_dir: services.d
+icinga2_hosts_dir: hosts.d
 icinga2_hosts_confs_dir: '' # FIXME: da verificare, vorrei fosse null
-icinga2_main_config_file: 'icinga2.conf'
-icinga2_constants_config_file: 'constants.conf'
+icinga2_main_config_file: icinga2.conf
+icinga2_constants_config_file: constants.conf
 icinga2_confd_dir_included: false
 icinga2_services_dir_included: true
 
