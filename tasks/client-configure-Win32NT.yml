@@ -1,0 +1,103 @@
+---
+- name: Ensure conf.d directory is not recursively included
+  community.windows.win_lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_confd_dir }}(\"|')$"
+    line: "#include_recursive \"{{ icinga2_confd_dir }}\""
+    state: present
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure custom conf.d directory is present
+  ansible.windows.win_file:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_custom_confd_dir }}"
+    state: directory
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure config files are recursively included from conf.d dir
+  community.windows.win_lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    line: "include_recursive \"{{ icinga2_custom_confd_dir }}\""
+    state: present
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure services.d directory is present
+  ansible.windows.win_file:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_services_dir }}"
+    state: directory
+  notify: Restart Icinga2 on Windows
+
+- name: Ensure services.d directory is recursively included
+  community.windows.win_lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_main_config_file }}"
+    regexp: "^(\\/\\/|#)?\\s*include_recursive (\"|'){{ icinga2_services_dir }}(\"|')$"
+    line: "include_recursive \"{{ icinga2_services_dir }}\""
+    state: present
+  notify: Restart Icinga2 on Windows
+
+- name: Setup Icinga constants
+  community.windows.win_lineinfile:
+    path: "{{ icinga2_config_root_dir }}/{{ icinga2_constants_config_file }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  with_items:
+    - { regexp: '^(\/\/)?\s*const NodeName', line: 'const NodeName = "{{ inventory_hostname }}"' }
+    - { regexp: '^(\/\/)?\s*const ZoneName', line: 'const ZoneName = "{{ inventory_hostname }}"' }
+  notify: Restart Icinga2 on Windows
+
+- name: Setup Icinga zones
+  ansible.windows.win_template:
+    src: ../templates/client-zones.conf.j2
+    dest: "{{ icinga2_config_root_dir }}/zones.conf"
+  notify: Restart Icinga2 on Windows
+
+- name: Copy CA and certs to client node
+  ansible.windows.win_copy:
+    src: "{{ item }}"
+    dest: "{{ icinga2_client_certs_dir }}\\"
+  with_fileglob:
+    - "/tmp/ansible/{{ inventory_hostname }}/icinga/*"
+  when: not icinga2_client_configured
+  notify: Restart Icinga2 on Windows
+
+- name: Configure Icinga API on satellite
+  ansible.windows.win_template:
+    src: client-api.conf.j2
+    dest: "{{ icinga2_config_root_dir }}/features-available/api.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Icinga2 on Windows
+
+- name: Enable Icinga API on satellite
+  community.windows.win_lineinfile:
+    path: "{{ icinga2_config_root_dir }}\\features-enabled\\api.conf"
+    regexp: '^(\/\/)?\s*include "../features-available/api.conf"'
+    line: 'include "../features-available/api.conf"'
+    state: present
+    create: true
+  notify: Restart Icinga2 on Windows
+
+- name: Add a Windows Firewall rule for Icinga API
+  community.windows.win_firewall_rule:
+    name: Icinga2 API
+    localport: "{{ icinga2_api_port }}"
+    action: allow
+    direction: in
+    protocol: tcp
+    state: present
+    enabled: true
+
+- name: Disable Icinga notifier on satellite
+  ansible.windows.win_file:
+    path: "{{ icinga2_config_root_dir }}/features-enabled/notification.conf"
+    state: absent
+  notify: Restart Icinga2 on Windows
+
+- name: Configure Icinga checker on satellite
+  ansible.windows.win_template:
+    src: client-checker.conf.j2
+    dest: "{{ icinga2_config_root_dir }}/features-available/checker.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart Icinga2 on Windows
