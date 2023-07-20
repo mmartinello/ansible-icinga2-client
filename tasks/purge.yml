@@ -13,5 +13,5 @@
     state: absent
   delegate_to: "{{ icinga2_master_inventory_hostname }}"
   become: true
-  when: not icinga2_purge_deconfigure_on_master
+  when: icinga2_purge_deconfigure_on_master
   notify: Reload Icinga2 on master server
