@@ -1,5 +1,5 @@
 ---
-- name: Gather OS system specific variables
+- name: Gather OS System specific variables
   ansible.builtin.include_vars: "{{ ansible_system }}.yml"
 
 - name: Gather Distribution specific variables
@@ -14,6 +14,21 @@
         - "default.yml"
       paths:
         - vars
+
+- name: Set host icon
+  ansible.builtin.include_vars: "{{ lookup('first_found', params) }}"
+  vars:
+    params:
+      files:
+        - "{{ ansible_system }}-{{ ansible_os_family }}-{{ ansible_os_installation_type | default('') }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_system }}-{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_system }}-{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+        - "{{ ansible_system }}-{{ ansible_distribution }}.yml"
+        - "{{ ansible_system }}.yml"
+        - "default.yml"
+      paths:
+        - vars/icons
+  when: not icinga2_host_icon | default(false)
 
 - name: Install Icinga
   ansible.builtin.include_tasks: install.yml

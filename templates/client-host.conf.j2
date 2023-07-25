@@ -1,4 +1,4 @@
-{{ ansible_managed | comment }}
+# {{ ansible_managed }}
 
 object Zone "{{ inventory_hostname }}" {
   endpoints = [ "{{ inventory_hostname }}" ]
@@ -15,7 +15,15 @@ object Host "{{ inventory_hostname }}" {
 {% else %}
   import "generic-host"
 {% endif %}
+
+  display_name = "{{ icinga2_host_display_name | default(inventory_hostname) }}"
   address = "{{ client_ip_address }}"
+  enable_notifications = {{ 'true' if icinga2_host_enable_notifications | default(true) else 'false' }}
+  notes = "{{ icinga2_host_notes | default('') }}"
+  notes_url = "{{ icinga2_host_notes_url | default('') }}"
+  action_url = "{{ icinga2_host_action_url | default('') }}"
+  icon_image = "img/icons/{{ icinga2_host_icon | default(icinga2_host_default_icon) | default('hardware/server4.png') }}"
+  icon_image_alt = "{{ icinga2_host_icon_alt | default('') }}"
 
   vars.distribution = "{{ ansible_distribution }}"
   vars.distribution_file_variety = "{{ ansible_distribution_file_variety | default('') }}"

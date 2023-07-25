@@ -1,6 +1,6 @@
 ---
 - name: Check if Icinga2 service exist
-  ansible.builtin.shell: service icinga2 status 
+  ansible.builtin.shell: service icinga2 status
   register: _service
   failed_when: icinga2_service_status.rc not in [0, 1, 3, 4]
 
