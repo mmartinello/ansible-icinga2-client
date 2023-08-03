@@ -40,6 +40,7 @@ object Host "{{ inventory_hostname }}" {
   vars.processor_nproc = "{{ ansible_processor_nproc | default('') }}"
   vars.product_name = "{{ ansible_product_name | default('') }}"
   vars.system_vendor = "{{ ansible_system_vendor | default('') }}"
+  vars.system_bits = "{{ ansible_userspace_bits | default('') }}"
   vars.virtualization_role = "{{ ansible_virtualization_role | default('') }}"
   vars.virtualization_type = "{{ ansible_virtualization_type | default('') }}"
 
