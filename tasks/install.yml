@@ -16,16 +16,26 @@
     state: disabled
   when: ansible_system == "Linux" and icinga2_selinux_disable
 
-- name: Ensure Icinga is started and enabled on boot.
+- name: Ensure Icinga is started and enabled on boot (Linux)
   ansible.builtin.service:
     name: icinga2
     state: started
     enabled: "{{ icinga2_enable_on_boot }}"
   when: ansible_system == "Linux"
 
-- name: Ensure Icinga is started and enabled on boot.
+- name: Ensure Icinga is started and enabled on boot (Windows)
   ansible.windows.win_service:
     name: icinga2
     state: started
     start_mode: auto
+    username: "{{ icinga2_service_username }}"
+    password: "{{ icinga2_service_password }}"
   when: ansible_os_family == "Windows"
+  notify: Restart Icinga2 on Windows
+
+- name: Restart Icinga (Windows)
+  ansible.builtin.debug:
+    msg: Restarting Icinga ...
+  changed_when: true
+  when: ansible_os_family == "Windows"
+  notify: Restart Icinga2 on Windows
