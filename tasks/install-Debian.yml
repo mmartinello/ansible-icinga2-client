@@ -1,4 +1,11 @@
 ---
+- name: Remove the old Icinga APT repository line (with legacy GPG keyring)
+  ansible.builtin.apt_repository:
+    repo: "deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main"
+    state: absent
+    filename: icinga
+    update_cache: false
+
 - name: Install required packages
   ansible.builtin.apt:
     name:
@@ -11,22 +18,21 @@
       - ca-certificates
     state: present
 
-- name: Add Debian Backports Repository
+- name: Add Debian Backports Repository on Debian Stretch
   ansible.builtin.apt_repository:
     repo: deb http://deb.debian.org/debian {{ ansible_distribution_release | lower }}-backports main
     state: present
     filename: debian-backports
   when: ansible_distribution_release | lower == "stretch"
 
-- name: Add Icinga Repository Key
-  ansible.builtin.apt_key:
-    url: https://packages.icinga.com/icinga.key
+- name: Download and install the Icinga2 repository key
+  ansible.builtin.apt:
+    deb: "https://packages.icinga.com/icinga-archive-keyring_latest+debian{{ ansible_distribution_major_version }}.deb"
     state: present
-    validate_certs: "{{ icinga2_validate_certs }}"
 
 - name: Add Icinga APT Repository
   ansible.builtin.apt_repository:
-    repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
+    repo: "deb [signed-by=/usr/share/keyrings/icinga-archive-keyring.gpg] http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main"
     state: present
     filename: icinga
 
