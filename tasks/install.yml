@@ -5,7 +5,9 @@
 
 - name: Install Icinga2 on CentOS like systems
   ansible.builtin.include_tasks: install-Centos.yml
-  when: ansible_os_family | lower in icinga2_yum_distros
+  when: >
+    ansible_os_family in ["CentOS", "RedHat", "Red Hat Enterprise Linux"]
+    or ansible_distribution_file_variety == "RedHat"
 
 - name: Install Icinga2 on Windows
   ansible.builtin.include_tasks: install-Windows.yml

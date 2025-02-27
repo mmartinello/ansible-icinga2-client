@@ -13,7 +13,9 @@
 # Remove packages on CentOS
 - name: Uninstall Icinga2 on CentOS like systems
   ansible.builtin.include_tasks: purge-Centos.yml
-  when: ansible_os_family | lower in icinga2_yum_distros
+  when: >
+    ansible_os_family in ["CentOS", "RedHat", "Red Hat Enterprise Linux"]
+    or ansible_distribution_file_variety == "RedHat"
 
 - name: Remove Icinga2 files
   ansible.builtin.file:

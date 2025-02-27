@@ -17,13 +17,26 @@
   ansible.builtin.yum:
     name:
       - epel-release
-      # - "https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
     state: present
     update_cache: true
 
 # FIXME: due to the previous FIXME note let's install the Icinga2 release package with the 'command' module
-- name: Install Icinga2 EPEL Repository
-  ansible.builtin.command: "yum -y install https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
+#- name: Install Icinga2 EPEL Repository
+#  ansible.builtin.command: "yum -y install https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
+
+- name: Install Icinga2 Repository
+  ansible.builtin.yum:
+    name: "https://packages.icinga.com/epel/icinga-rpm-release-{{ ansible_distribution_major_version }}-latest.noarch.rpm"
+    state: present
+
+- name: Fix the ICINGA-release.repo file for Sangoma distro
+  ansible.builtin.template:
+    src: ICINGA-release.repo.j2
+    dest: /etc/yum.repos.d/ICINGA-release.repo
+    owner: root
+    group: root
+    mode: '0644'
+  when: ansible_os_family == "Sangoma"
 
 - name: Install Icinga 2
   ansible.builtin.yum:
