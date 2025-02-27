@@ -27,7 +27,7 @@
 
 - name: Download and install the Icinga2 repository key
   ansible.builtin.apt:
-    deb: "https://packages.icinga.com/icinga-archive-keyring_latest+debian{{ ansible_distribution_major_version }}.deb"
+    deb: "https://packages.icinga.com/icinga-archive-keyring_latest+{{ ansible_distribution | lower }}{{ ansible_distribution_major_version if ansible_distribution == 'Debian' else ansible_distribution_version }}.deb"
     state: present
 
 - name: Add Icinga APT Repository

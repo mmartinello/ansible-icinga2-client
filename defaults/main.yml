@@ -2,21 +2,9 @@
 #########################################################################
 # Icinga 2
 
+# FIXME: check and remove unused variables
+
 icinga2_vm_type: ""
-
-# APT Distributions (in lower case!)
-icinga2_apt_distros:
-  - debian
-  - ubuntu
-
-# YUM Distributions (in lower case!)
-icinga2_yum_distros:
-  - centos
-  - redhat
-  - red hat enterprise linux
-
-# Validate SSL certificates
-icinga2_validate_certs: true
 
 # Main service
 icinga2_enable_on_boot: true

@@ -1,7 +1,7 @@
 ---
 - name: Install Icinga2 on Debian like systems
   ansible.builtin.include_tasks: install-Debian.yml
-  when: ansible_os_family | lower in icinga2_apt_distros
+  when: ansible_os_family in ["Debian", "Ubuntu"]
 
 - name: Install Icinga2 on CentOS like systems
   ansible.builtin.include_tasks: install-Centos.yml
