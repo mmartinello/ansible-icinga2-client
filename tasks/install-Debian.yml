@@ -39,7 +39,8 @@
 - name: Install Icinga 2
   ansible.builtin.package:
     name: icinga2
-    state: present
+    state: "{{ 'latest' if icinga2_client_upgrade else 'present' }}"
+    update_cache: true
   notify: Restart Icinga2
 
 - name: Install Monitoring Plugins

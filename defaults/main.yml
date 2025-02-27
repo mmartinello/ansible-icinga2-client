@@ -35,6 +35,9 @@ icinga2_master_user: nagios
 icinga2_master_group: nagios
 icinga2_client_master_conf_root_dir: /etc/icinga2
 
+# Upgrade the client when installing it
+icinga2_client_upgrade: false
+
 # Configuration
 icinga2_config_root_dir: /etc/icinga2
 icinga2_confd_dir: conf.d
