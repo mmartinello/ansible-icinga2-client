@@ -25,6 +25,7 @@ object Host "{{ inventory_hostname }}" {
   icon_image = "img/icons/{{ icinga2_host_icon | default(icinga2_host_default_icon) | default('hardware/server4.png') }}"
   icon_image_alt = "{{ icinga2_host_icon_alt | default('') }}"
 
+  # Host build-in variables
   vars.distribution = "{{ ansible_distribution }}"
   vars.distribution_file_variety = "{{ ansible_distribution_file_variety | default('') }}"
   vars.distribution_major_version = "{{ ansible_distribution_major_version }}"
@@ -65,30 +66,37 @@ object Host "{{ inventory_hostname }}" {
 {% endif %}
 
   #############################################################################
-  # Host Variables
+  # Host Variables defined in icinga2_client_vars
 
 {% set host_vars = icinga2_client_vars | default({}) %}
 {% set _extra_vars = host_vars.update(icinga2_client_vars_extra) %}
 {% for var_group_name, var_group_content in host_vars.items() %}
 {% if var_group_content is mapping %}
 {% for var_name, var_content in var_group_content.items() %}
+{# Value is a mapping #}
 {% if var_content is mapping %}
   vars.{{ var_group_name }}["{{ var_name }}"] = {
 {% for param_name, param_value in var_content.items() %}
-{% if param_value == false or param_value == true %}
+{# Value is a boolean #}
+{% if param_value is boolean %}
     {{ param_name }} = {{ param_value | lower }}
-{% elif param_value is number %}
+{# Value is a number or a number with a unit (ms, s, m, d, h) #}
+{% elif param_value is number or param_value is float or param_value | regex_search('^[0-9.]+(ms|s|m|d|h|d)$') %}
     {{ param_name }} = {{ param_value }}
+{# Value is a string #}
 {% else %}
     {{ param_name }} = "{{ param_value }}"
 {% endif %}
 {% endfor %}
   }
 {% else %}
-{% if var_content == false or var_content == true %}
+{# Value is a boolean #}
+{% if var_content is boolean %}
   vars.{{ var_group_name }}["{{ var_name }}"] = {{ var_content | lower }}
-{% elif var_content is number %}
+{# Value is a number or a number with a unit (ms, s, m, d, h) #}
+{% elif var_content is number or var_content is float or var_content | regex_search('^[0-9.]+(ms|s|m|d|h|d)$') %}
   vars.{{ var_group_name }}["{{ var_name }}"] = {{ var_content }}
+{# Value is a string #}
 {% else %}
   vars.{{ var_group_name }}["{{ var_name }}"] = "{{ var_content }}"
 {% endif %}
