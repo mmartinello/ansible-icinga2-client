@@ -1,9 +1,8 @@
 ---
 - name: Remove Icinga APT Repository
-  ansible.builtin.apt_repository:
-    repo: deb http://packages.icinga.com/{{ ansible_distribution | lower }} icinga-{{ ansible_distribution_release }} main
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/icinga.list
     state: absent
-    filename: icinga
 
 - name: Remove Icinga2
   ansible.builtin.apt:
