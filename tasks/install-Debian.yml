@@ -14,7 +14,6 @@
       - nmap
       - bc
       - gpg
-      - gpgv2
       - ca-certificates
     state: present
 
