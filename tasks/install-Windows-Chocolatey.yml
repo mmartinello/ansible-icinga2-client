@@ -1,0 +1,6 @@
+---
+- name: Install Icinga 2 using Chocolatey
+  chocolatey.chocolatey.win_chocolatey:
+    name: icinga2
+    version: "{{ icinga2_client_win_chocolatey_version }}"
+  notify: Restart Icinga2 on Windows
