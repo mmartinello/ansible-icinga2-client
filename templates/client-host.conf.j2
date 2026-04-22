@@ -1,21 +1,26 @@
 # {{ ansible_managed }}
 
+{# Zone object #}
 object Zone "{{ inventory_hostname }}" {
   endpoints = [ "{{ inventory_hostname }}" ]
   parent = "{{ icinga2_master_host }}"
 }
 
+{# Endpoint object #}
 object Endpoint "{{ inventory_hostname }}" {
   host = "{{ client_ip_address }}"
 }
 
+{# Host object #}
 object Host "{{ inventory_hostname }}" {
+{# Host template: can be customized with 'icinga2_host_template' var #}
 {% if icinga2_host_template is defined and icinga2_host_template != "" %}
   import "{{ icinga2_host_template }}"
 {% else %}
   import "generic-host"
 {% endif %}
 
+  # Host basic settings
   display_name = "{{ icinga2_host_display_name | default(inventory_hostname) }}"
   address = "{{ client_ip_address }}"
   enable_notifications = {{ 'true' if icinga2_host_enable_notifications | default(true) else 'false' }}
@@ -45,11 +50,13 @@ object Host "{{ inventory_hostname }}" {
   vars.virtualization_role = "{{ ansible_virtualization_role | default('') }}"
   vars.virtualization_type = "{{ ansible_virtualization_type | default('') }}"
 
-{% if icinga2_plugins_linuxfabrik_monitoring_plugins_installed | default(false) %}
+{# Enable Linuxfabrik Monitoring Plugins if installed #}
+{%- if icinga2_plugins_linuxfabrik_monitoring_plugins_installed | default(false) %}
   vars.linuxfabrik_monitoring_plugins_installed = true
 {% endif %}
 
-{% if icinga2_client_os != "Windows" %}
+{# Enable default variables on non-Windows hosts #}
+{%- if icinga2_client_os != "Windows" %}
   vars.disks["disk"] = {
     disk_all = true
     disk_local = true
@@ -62,61 +69,100 @@ object Host "{{ inventory_hostname }}" {
 
   vars.client_endpoint = name
 
+{# TODO: built-in Linuxfabrik Monitoring Plugins variables #}
 {% if icinga2_plugins_linuxfabrik_monitoring_plugins_installed | default(false) %}
 {% endif %}
 
+#############################################################################
+# Host Variables defined in 'icinga2_client_vars' variable
+
+{#
+------------------------------------------------------------------------------
+Icinga2 variables rendering helper
+
+This macro converts Ansible values into valid Icinga2 DSL syntax.
+
+Supported types:
+- Boolean      -> true / false
+- Number       -> 10, 3.14
+- String       -> "value"
+- Duration     -> 10s, 5m, 100ms (kept unquoted)
+- List         -> ["a", "b", "c"]
+- Dictionary   -> handled outside this macro
+
+Examples
+
+Input:
+  icinga2_client_vars:
+    check_swap: false
+    load_wload1: 36.0
+    pve_backups:
+      pve_backups_verify_ssl: true
+      pve_backups_storage: backup-pbs
+    nvme:
+      /dev/nvme0:
+        ignore_num_err_log: true
+    zfs:
+      rpool:
+        capacity: 80 90
+
+Rendered output:
+  vars.check_swap = false
+  vars.load_wload1 = 36.0
+  vars.pve_backups["pve_backups_verify_ssl"] = true
+  vars.pve_backups["pve_backups_storage"] = "backup-pbs"
+  vars.nvme["/dev/nvme0"] = {
+    ignore_num_err_log = true
+  }
+  vars.zfs["rpool"] = {
+    capacity = "80 90"
+  }
+------------------------------------------------------------------------------
+#}
+{% macro render_icinga_value(value) -%}
+{%- if value is boolean -%}
+{{ value | lower }}
+{%- elif value is iterable and (value is not string and value is not mapping) -%}
+["{{ value | join('", "') }}"]
+{%- elif value is number or (value is string and value | regex_search('^[0-9.]+(ms|s|m|d|h)$')) -%}
+{{ value }}
+{%- else -%}
+"{{ value }}"
+{%- endif -%}
+{%- endmacro %}
+
   #############################################################################
-  # Host Variables defined in icinga2_client_vars
+  # Host Variables defined in 'icinga2_client_vars' variable
 
 {% set host_vars = icinga2_client_vars | default({}) %}
-{% set _extra_vars = host_vars.update(icinga2_client_vars_extra) %}
-{% for var_group_name, var_group_content in host_vars.items() %}
-{% if var_group_content is mapping %}
-{% for var_name, var_content in var_group_content.items() %}
-{# Value is a mapping #}
-{% if var_content is mapping %}
-  vars.{{ var_group_name }}["{{ var_name }}"] = {
-{% for param_name, param_value in var_content.items() %}
-{# Value is a boolean #}
-{% if param_value is boolean %}
-    {{ param_name }} = {{ param_value | lower }}
-{# Value is a number or a number with a unit (ms, s, m, d, h) #}
-{% elif param_value is number or param_value is float or param_value | regex_search('^[0-9.]+(ms|s|m|d|h|d)$') %}
-    {{ param_name }} = {{ param_value }}
-{# Value is a string #}
-{% else %}
-    {{ param_name }} = "{{ param_value }}"
+{% for check_command, check_element in host_vars.items() %}
+{% if check_element is mapping %}
+{% set ns = namespace(has_nested_mapping=false) %}
+{% for _, v in check_element.items() %}
+{% if v is mapping %}
+{% set ns.has_nested_mapping = true %}
 {% endif %}
+{% endfor %}
+
+{% if ns.has_nested_mapping %}
+{% for check_element_name, check_element_params in check_element.items() %}
+{% if check_element_params is mapping %}
+  vars.{{ check_command }}["{{ check_element_name }}"] = {
+{% for check_element_param_name, check_element_param_value in check_element_params.items() %}
+    {{ check_element_param_name }} = {{ render_icinga_value(check_element_param_value) }}
 {% endfor %}
   }
 {% else %}
-{# Value is a boolean #}
-{% if var_content is boolean %}
-  vars.{{ var_group_name }}["{{ var_name }}"] = {{ var_content | lower }}
-{# Value is a number or a number with a unit (ms, s, m, d, h) #}
-{% elif var_content is number or var_content is float or var_content | regex_search('^[0-9.]+(ms|s|m|d|h|d)$') %}
-  vars.{{ var_group_name }}["{{ var_name }}"] = {{ var_content }}
-{# Value is a string #}
-{% else %}
-  vars.{{ var_group_name }}["{{ var_name }}"] = "{{ var_content }}"
-{% endif %}
+  vars.{{ check_command }}["{{ check_element_name }}"] = {{ render_icinga_value(check_element_params) }}
 {% endif %}
 {% endfor %}
 {% else %}
-{% if var_group_content == false or var_group_content == true %}
-  vars.{{ var_group_name }} = {{ var_group_content | lower }}
-{% elif var_group_content is number %}
-  vars.{{ var_group_name }} = {{ var_group_content }}
+{% for check_element_name, check_element_value in check_element.items() %}
+  vars.{{ check_command }}["{{ check_element_name }}"] = {{ render_icinga_value(check_element_value) }}
+{% endfor %}
+{% endif %}
 {% else %}
-  vars.{{ var_group_name }} = "{{ var_group_content }}"
+  vars.{{ check_command }} = {{ render_icinga_value(check_element) }}
 {% endif %}
-{% endif %}
-
-{%- endfor %}
-
-  # End Host Variables
-  #############################################################################
-
-  # Include additional host var file
-  include "/etc/icinga2/additional-host-vars/{{ inventory_hostname }}.conf"
+{% endfor %}
 }
