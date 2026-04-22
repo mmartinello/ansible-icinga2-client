@@ -1,9 +1,13 @@
 ---
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
 - name: Ensure Icinga2 service is stopped
   ansible.builtin.service:
     name: icinga2
     state: stopped
     enabled: false
+  when: "'icinga2.service' in ansible_facts.services"
 
 # Remove packages on Debian
 - name: Uninstall Icinga2 on Debian like systems
