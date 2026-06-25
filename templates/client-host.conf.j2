@@ -73,8 +73,8 @@ object Host "{{ inventory_hostname }}" {
 {% if icinga2_plugins_linuxfabrik_monitoring_plugins_installed | default(false) %}
 {% endif %}
 
-#############################################################################
-# Host Variables defined in 'icinga2_client_vars' variable
+  #############################################################################
+  # Host Variables defined in 'icinga2_client_vars' variable
 
 {#
 ------------------------------------------------------------------------------
@@ -131,10 +131,8 @@ Rendered output:
 {%- endif -%}
 {%- endmacro %}
 
-  #############################################################################
-  # Host Variables defined in 'icinga2_client_vars' variable
-
-{% set host_vars = icinga2_client_vars | default({}) %}
+{% set host_vars = (icinga2_client_vars | default({}))
+    | combine(icinga2_client_vars_extra | default({}), recursive=True) %}
 {% for check_command, check_element in host_vars.items() %}
 {% if check_element is mapping %}
 {% set ns = namespace(has_nested_mapping=false) %}
@@ -165,4 +163,11 @@ Rendered output:
   vars.{{ check_command }} = {{ render_icinga_value(check_element) }}
 {% endif %}
 {% endfor %}
+
+  # End Host Variables
+  #############################################################################
+
+  # Include additional host var file
+  include "{{ icinga2_client_master_conf_root_dir }}/additional-host-vars/{{ inventory_hostname }}.conf"
+
 }
